@@ -3,7 +3,7 @@ module github.com/crowdstrike/falcon-operator
 go 1.18
 
 require (
-	github.com/aws/aws-sdk-go-v2 v1.16.6
+	github.com/aws/aws-sdk-go-v2 v1.17.1
 	github.com/aws/aws-sdk-go-v2/config v1.15.12
 	github.com/aws/aws-sdk-go-v2/service/ecr v1.17.7
 	github.com/containers/image/v5 v5.21.1
@@ -43,7 +43,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.9.7 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sso v1.11.10 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.16.8 // indirect
-	github.com/aws/smithy-go v1.12.0 // indirect
+	github.com/aws/smithy-go v1.13.4 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/blang/semver/v4 v4.0.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
