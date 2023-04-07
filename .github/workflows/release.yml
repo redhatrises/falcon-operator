@@ -32,7 +32,14 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          ref: ${{ env.REFBRANCH }}
+
+      - name: Get Event branch
+        id: event_branch
+        run: |
+          BASEREF=${{ github.event.base_ref }}
+          REFBRANCH=${BASEREF#refs/heads/}
+
+          echo "REFBRANCH=${REFBRANCH}" >> $GITHUB_ENV
 
       - name: Configure Git
         id: config_git
