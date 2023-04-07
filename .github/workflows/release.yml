@@ -44,7 +44,7 @@ jobs:
 
           VERSION=${{ env.RELEASE_TAG }}
           NEWVERSION=${VERSION:1}
-          echo "NEWVERSION=${NEWVERSION}"
+          echo "NEWVERSION=${NEWVERSION}" >> $GITHUB_ENV
           echo "LATESTRELEASE=${LATESTREL}" >> $GITHUB_ENV
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
@@ -57,8 +57,6 @@ jobs:
             -f tag_name="${GITHUB_REF#refs/tags/}" \
             -f target_commitish=main \
             -q .body > NOTES.md
-
-            cat NOTES.md >> CHANGELOG.md
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
