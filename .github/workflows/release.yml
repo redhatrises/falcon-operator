@@ -17,10 +17,10 @@ env:
   RELEASE_TAG: ${{ github.ref_name }}
 
 jobs:
-  create_release:
+  bump_release:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout full repository
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -28,15 +28,17 @@ jobs:
       - name: Get Event branch
         id: event_branch
         run: |
-          test=$(git log --no-walk --pretty="%D" v0.1 | cut -d"," -f1 | awk '{print $NF}')
-
           BASEREF=${{ github.event.base_ref }}
           REFBRANCH=${BASEREF#refs/heads/}
 
           echo "REFBRANCH=${REFBRANCH}" >> $GITHUB_ENV
           echo $REFBRANCH
-          echo $test
-          exit 1
+
+      - name: Checkout tagged branch
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ env.REFBRANCH }}
 
       - name: Configure Git
         id: config_git
@@ -44,33 +46,10 @@ jobs:
           git config user.name github-actions
           git config user.email github-actions@github.com
 
-      - name: Getting latest release version and version setup
-        id: latest_version
-        run: |
-          if ! gh api repos/$GITHUB_REPOSITORY/releases/latest -q .tag_name > /dev/null 2>&1 ; then
-              LATESTREL="v0.0.0"
-          else
-              LATESTREL=$(gh api repos/$GITHUB_REPOSITORY/releases/latest -q .tag_name)
-          fi
-
           VERSION=${{ env.RELEASE_TAG }}
           NEWVERSION=${VERSION:1}
 
           echo "NEWVERSION=${NEWVERSION}" >> $GITHUB_ENV
-          echo "LATESTRELEASE=${LATESTREL}" >> $GITHUB_ENV
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-
-      - name: Generate Notes
-        id: notes
-        run: |
-          echo "tag-name=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-          gh api repos/$GITHUB_REPOSITORY/releases/generate-notes \
-            -f tag_name="${GITHUB_REF#refs/tags/}" \
-            -f target_commitish=${{ env.REFBRANCH }} \
-            -q .body > NOTES.md
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
       - name: Generate Changelog
         id: changelog
@@ -102,6 +81,49 @@ jobs:
           git add -u
           git commit -m "Bumping to version ${{ env.NEWVERSION }}"
           git push
+
+  create_release:
+    runs-on: ubuntu-latest
+    needs: bump_release
+    steps:
+      - name: Checkout full repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get Event branch
+        id: event_branch
+        run: |
+          BASEREF=${{ github.event.base_ref }}
+          REFBRANCH=${BASEREF#refs/heads/}
+
+          echo "REFBRANCH=${REFBRANCH}" >> $GITHUB_ENV
+          echo $REFBRANCH
+          exit 1
+
+      - name: Getting latest release version and version setup
+        id: latest_version
+        run: |
+          if ! gh api repos/$GITHUB_REPOSITORY/releases/latest -q .tag_name > /dev/null 2>&1 ; then
+              LATESTREL="v0.0.0"
+          else
+              LATESTREL=$(gh api repos/$GITHUB_REPOSITORY/releases/latest -q .tag_name)
+          fi
+
+          echo "LATESTRELEASE=${LATESTREL}" >> $GITHUB_ENV
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Generate Notes
+        id: notes
+        run: |
+          echo "tag-name=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          gh api repos/$GITHUB_REPOSITORY/releases/generate-notes \
+            -f tag_name="${GITHUB_REF#refs/tags/}" \
+            -f target_commitish=${{ env.REFBRANCH }} \
+            -q .body > NOTES.md
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
       - name: Create release
         id: create_release
