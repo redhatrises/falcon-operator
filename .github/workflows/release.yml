@@ -28,7 +28,7 @@ jobs:
       - name: Get Event branch
         id: event_branch
         run: |
-          test=$(git tag --points-at HEAD)
+          test=$(git log --no-walk --pretty="%D" v0.1 | cut -d"," -f1 | awk '{print $NF}')
           echo $test
           exit 1
           BASEREF=${{ github.event.base_ref }}
