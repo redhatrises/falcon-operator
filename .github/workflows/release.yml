@@ -146,8 +146,6 @@ jobs:
       # Checkout falcon-operator github repository
       - name: Checkout falcon-operator project
         uses: actions/checkout@v3
-        with:
-          repository: $GITHUB_REPOSITORY
 
       - name: Create proper tag version
         id: set_version
