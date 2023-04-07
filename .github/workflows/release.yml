@@ -32,7 +32,7 @@ jobs:
           git config user.email github-actions@github.com
 
           BASEREF=${{ github.event.base_ref }}
-          REFBRANCH=${$BASEREF#refs/heads/}
+          REFBRANCH=${BASEREF#refs/heads/}
           echo $REFBRANCH
           exit 1
 
