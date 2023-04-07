@@ -31,7 +31,7 @@ jobs:
           git config user.name github-actions
           git config user.email github-actions@github.com
 
-          echo ${{ github.event.base_ref }}
+          echo ${{ github.event.ref_name }}
           exit 1
 
       - name: Getting latest release version
