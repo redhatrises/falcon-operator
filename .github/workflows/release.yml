@@ -28,6 +28,9 @@ jobs:
       - name: Get Event branch
         id: event_branch
         run: |
+          test=$(git tag --points-at HEAD)
+          echo $test
+          exit 1
           BASEREF=${{ github.event.base_ref }}
           REFBRANCH=${BASEREF#refs/heads/}
 
