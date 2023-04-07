@@ -98,8 +98,6 @@ jobs:
           REFBRANCH=${BASEREF#refs/heads/}
 
           echo "REFBRANCH=${REFBRANCH}" >> $GITHUB_ENV
-          echo $REFBRANCH
-          exit 1
 
       - name: Getting latest release version and version setup
         id: latest_version
