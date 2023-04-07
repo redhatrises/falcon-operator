@@ -35,7 +35,12 @@ jobs:
 
       - name: Getting latest release version
         run: |
-          LATESTREL=$(gh api repos/$GITHUB_REPOSITORY/releases/latest -q .tag_name)
+          if ! gh api repos/$GITHUB_REPOSITORY/releases/latest -q .tag_name > /dev/null 2>&1 ; then
+              LATESTREL="v0.0.0"
+          else
+              LATESTREL=$(gh api repos/$GITHUB_REPOSITORY/releases/latest -q .tag_name)
+          fi
+              
           echo "LATESTRELEASE=${LATESTREL}" >> $GITHUB_ENV
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
@@ -48,7 +53,7 @@ jobs:
             -f tag_name="${GITHUB_REF#refs/tags/}" \
             -f target_commitish=main \
             -q .body > NOTES.md
-            
+
             cat NOTES.md >> CHANGELOG.md
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
