@@ -33,6 +33,7 @@ jobs:
 
           echo "REFBRANCH=${REFBRANCH}" >> $GITHUB_ENV
           echo $REFBRANCH
+          exit 1
 
       - name: Checkout tagged branch
         uses: actions/checkout@v3
