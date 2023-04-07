@@ -34,19 +34,23 @@ jobs:
           echo ${GITHUB_REF#refs/heads/}
 
       - name: Getting latest release version
+        id: latest_version
         run: |
           if ! gh api repos/$GITHUB_REPOSITORY/releases/latest -q .tag_name > /dev/null 2>&1 ; then
               LATESTREL="v0.0.0"
           else
               LATESTREL=$(gh api repos/$GITHUB_REPOSITORY/releases/latest -q .tag_name)
           fi
-              
+
+          VERSION=${{ env.RELEASE_TAG }}
+          NEWVERSION=${VERSION:1}
+          echo "NEWVERSION=${NEWVERSION}"
           echo "LATESTRELEASE=${LATESTREL}" >> $GITHUB_ENV
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
-      - name: Generate changelog
-        id: changelog
+      - name: Generate Notes
+        id: notes
         run: |
           echo "tag-name=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
           gh api repos/$GITHUB_REPOSITORY/releases/generate-notes \
@@ -58,18 +62,39 @@ jobs:
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
-      - name: Update release changes
+      - name: Generate Changelog
+        id: changelog
         run: |
-          git add CHANGELOG.md
-          VERSION=${{ env.RELEASE_TAG }}
-          NEWVERSION=${VERSION:1}
+          release=${{ env.NEWVERSION }}
+          cl=CHANGELOG.md
+          today=$(date +%F)
+          header=$(head -n7 ${cl})
+          older=$(tail -n+7 ${cl})
+
+          # get all commits on head since the latest tag
+          changes=$(git log --no-merges --pretty=format:"- %s" $(git describe --tags --abbrev=0 HEAD^)..HEAD)
+
+          echo "${header}" > ${cl}
+          echo "" >> ${cl}
+          echo "## [${release}] - ${today}" >> ${cl}
+          echo "" >> ${cl}
+          echo "### Changed" >> ${cl}
+          echo "${changes}" >> ${cl}
+          echo "${older}" >> ${cl}
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Update release changes
+        id: git_commit
+        run: |
           OLDVERSION=$(grep ^VERSION Makefile | awk '{print $NF}')
-          sed -i "s/$OLDVERSION/$NEWVERSION/g" -i Makefile
+          sed -i "s/$OLDVERSION/${{ env.NEWVERSION }}/g" -i Makefile
           git add -u
-          git commit -m "Bumping to version $NEWVERSION"
+          git commit -m "Bumping to version ${{ env.NEWVERSION }}"
           git push
 
       - name: Create release
+        id: create_release
         if: env.LATESTRELEASE != env.RELEASE_TAG
         run: |
           gh api repos/$GITHUB_REPOSITORY/releases \
@@ -81,6 +106,7 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
       - name: Updating release
+        id: update_release
         if: env.LATESTRELEASE == env.RELEASE_TAG
         run: |
           gh release edit "${GITHUB_REF#refs/tags/}" \
@@ -92,6 +118,7 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
       - name: Upload release assets
+        id: upload_manifest
         run: |
           gh release upload "${GITHUB_REF#refs/tags/}" deploy/falcon-operator.yaml
         env:
