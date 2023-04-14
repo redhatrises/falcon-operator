@@ -84,6 +84,8 @@ jobs:
         run: |
           OLDVERSION=$(grep ^VERSION Makefile | awk '{print $NF}')
           sed -i "s/$OLDVERSION/${{ env.NEWVERSION }}/g" -i Makefile
+          mkdir -p $HOME/go/bin
+          make operator-sdk
           make manifests bundle deploy/falcon-operator.yaml IMG=${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ env.NEWVERSION }}
           git add -u
           git commit -m "Bumping to version ${{ env.NEWVERSION }}"
