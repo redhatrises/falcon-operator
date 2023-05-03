@@ -92,7 +92,7 @@ jobs:
           git add -u
           git commit -m "Bumping to version ${{ env.NEWVERSION }}"
           git push
-          git tag -s -f "${GITHUB_REF#refs/tags/}"
+          git tag -m "" -s -f "${GITHUB_REF#refs/tags/}"
           git push origin "${GITHUB_REF#refs/tags/}" --force
 
   create_release:
