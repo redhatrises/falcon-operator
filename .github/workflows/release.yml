@@ -48,7 +48,6 @@ jobs:
       - name: Configure Git
         id: config_git
         run: |
-          curl --silent https://github.com/web-flow.gpg | gpg --import
           git config user.name github-actions
           git config user.email noreply@github.com
 
@@ -90,9 +89,12 @@ jobs:
           make operator-sdk
           make manifests bundle non-olm IMG=${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ env.NEWVERSION }}
           git add -u
-          git commit -m "Bumping to version ${{ env.NEWVERSION }}"
+          git commit -m "Bumping to version ${{ env.VERSION }}"
           git push
-          git tag -m "" -s -f "${GITHUB_REF#refs/tags/}"
+
+          curl --silent https://github.com/web-flow.gpg | gpg --import
+          git config --global user.signingkey $(gpg --list-signatures | grep ^sig | awk '{print $3}')
+          git tag -m "Bumping to version ${{ env.VERSION }}" -s -f "${GITHUB_REF#refs/tags/}"
           git push origin "${GITHUB_REF#refs/tags/}" --force
 
   create_release:
