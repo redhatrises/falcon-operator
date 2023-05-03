@@ -48,8 +48,9 @@ jobs:
       - name: Configure Git
         id: config_git
         run: |
+          curl --silent https://github.com/web-flow.gpg | gpg --import
           git config user.name github-actions
-          git config user.email github-actions@github.com
+          git config user.email noreply@github.com
 
           VERSION=${{ env.RELEASE_TAG }}
           NEWVERSION=${VERSION:1}
@@ -91,7 +92,7 @@ jobs:
           git add -u
           git commit -m "Bumping to version ${{ env.NEWVERSION }}"
           git push
-          git tag -f "${GITHUB_REF#refs/tags/}"
+          git tag -s -f "${GITHUB_REF#refs/tags/}"
           git push origin "${GITHUB_REF#refs/tags/}" --force
 
   create_release:
