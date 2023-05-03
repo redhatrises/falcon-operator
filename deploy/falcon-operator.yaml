@@ -2907,7 +2907,7 @@ spec:
       serviceAccountName: falcon-operator-controller-manager
       containers:
       - name: manager
-        image: quay.io/crowdstrike/falcon-operator:latest
+        image: quay.io/crowdstrike/falcon-operator:0.0.3
         command:
         - /manager
         args:
