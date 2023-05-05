@@ -32,6 +32,7 @@ RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} go build -a -tags
 # Use distroless as minimal base image to package the manager binary
 # Refer to https://github.com/GoogleContainerTools/distroless for more details
 FROM registry.access.redhat.com/ubi8/ubi-minimal
+ARG VERSION
 WORKDIR /
 LABEL name="CrowdStrike Falcon Operator" \
       description="The CrowdStrike Falcon Operator deploys the CrowdStrike Falcon Sensor to protect Kubernetes clusters." \
