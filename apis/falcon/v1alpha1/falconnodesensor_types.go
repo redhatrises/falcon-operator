@@ -67,7 +67,7 @@ type FalconNodeSensorConfig struct {
 	NodeCleanup *bool `json:"disableCleanup,omitempty"`
 	// Sets the backend to be used by the DaemonSet Sensor.
 	// +kubebuilder:default=kernel
-	// +kubebuilder:validation:Enum=kernel;bpf
+	// +kubebuilder:validation:Enum=kernel
 	// +operator-sdk-csv:customresourcedefinitions:type=spec,order=9
 	Backend string `json:"backend,omitempty"`
 
