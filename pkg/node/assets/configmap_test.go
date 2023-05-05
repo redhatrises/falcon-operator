@@ -25,7 +25,8 @@ func TestDaemonsetConfigMap(t *testing.T) {
 			Labels:    common.CRLabels("configmap", cfgName, common.FalconKernelSensor),
 		},
 		Data: map[string]string{
-			"FALCONCTL_OPT_CID": "1234567890ABCDEF1234567890ABCDEF-12",
+			"FALCONCTL_OPT_CID":     "1234567890ABCDEF1234567890ABCDEF-12",
+			"FALCONCTL_OPT_BACKEND": "kernel",
 		},
 	}
 
@@ -33,6 +34,6 @@ func TestDaemonsetConfigMap(t *testing.T) {
 
 	got := DaemonsetConfigMap("test", "test", config)
 	if diff := cmp.Diff(&want, &got); diff != "" {
-		t.Errorf("getTermGracePeriod() mismatch (-want +got): %s", diff)
+		t.Errorf("DaemonsetConfigMap() mismatch (-want +got): %s", diff)
 	}
 }
