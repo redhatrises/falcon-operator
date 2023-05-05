@@ -2012,7 +2012,7 @@ spec:
     listKind: FalconNodeSensorList
     plural: falconnodesensors
     singular: falconnodesensor
-  scope: Cluster
+  scope: Namespaced
   versions:
   - name: v1alpha1
     additionalPrinterColumns:
