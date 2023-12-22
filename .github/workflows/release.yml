@@ -88,6 +88,7 @@ jobs:
           export PATH=$HOME/go/bin:$PATH
           make operator-sdk
           make manifests bundle non-olm IMG=${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ env.NEWVERSION }}
+          grep "image\:" deploy/falcon-operator.yaml
           git add -u
           git commit -m "Bumping to version ${{ env.NEWVERSION }}"
           git push
