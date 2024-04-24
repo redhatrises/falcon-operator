@@ -27,7 +27,7 @@ spec:
     image: repo.host.com:4000/name:tag
     imagePullPolicy: Always
     # secret within the falcon-system namespace.
-    # Secret will only be used when image_override is present as well.
+    # Secret will only be used when `image` is present as well.
     imagePullSecrets:
       - name: pullSecret1
       - name: pullSecret2
@@ -49,7 +49,8 @@ spec:
     app: 8080
     billing: metered
     # Use to not need falcon_api section above
-    provisioning_token: 00001111
+    provisioning_token: "00001111"
+    # (required when not using the API Key pair)
     cid: 00001111222233334444555566667777-12
     tags:
       - daemonset

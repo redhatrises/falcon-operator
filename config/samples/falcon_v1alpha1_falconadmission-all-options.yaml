@@ -1,20 +1,21 @@
-# Falcon Container Installation.
+# Falcon Admission Installation.
 #
 # Example using all/many available options
 ---
 apiVersion: falcon.crowdstrike.com/v1alpha1
-kind: FalconContainer
+kind: FalconAdmission
 metadata:
   labels:
     crowdstrike.com/component: sample
     crowdstrike.com/created-by: falcon-operator
-    crowdstrike.com/instance: falcon-sidecar-sensor
+    crowdstrike.com/instance: falcon-admission
     crowdstrike.com/managed-by: kustomize
-    crowdstrike.com/name: falconcontainer
+    crowdstrike.com/name: falconadmission
     crowdstrike.com/part-of: Falcon
     crowdstrike.com/provider: crowdstrike
-  name: falcon-sidecar-sensor
+  name: falcon-admission
 spec:
+  installNamespace: falcon-kac
   falcon_api:
     client_id: PLEASE_FILL_IN
     client_secret: PLEASE_FILL_IN
@@ -30,39 +31,49 @@ spec:
     billing: metered
     trace: none
     tags:
-      - sidecar
+      - admission_controller
       - tags1
       - tags2
-  injector:
+  resourcequota:
+    pods: "2"
+  admissionConfig:
+    replicas: 2
     serviceAccount:
       annotations:
         # These are just examples, you wouldn't combine AWS & GKE roles at once
         eks.amazonaws.com/role-arn: arn:aws:iam::111122223333:role/iam-role-name
         iam.gke.io/gcp-service-account: $GCP_SERVICE_ACCOUNT@$GCP_PROJECT_ID.iam.gserviceaccount.com
         annotation2: annotation-value
-    disableDefaultNamespaceInjection: true
-    disableDefaultPodInjection: false
     imagePullPolicy: Always
-    imagePullSecret: your-pre-created-secret
-    listenPort: 4433
+    imagePullSecrets:
+      - name: your-pre-created-secret
+      - name: your-pre-created-secret2
+    servicePort: 443
+    containerPort: 4443
+    failurePolicy: Fail
     tls:
       validity: 123
-    # Sidecar sensor resource settings
-    sensorResources:
+    resources:
       limits:
         cpu: 500m
         memory: 128Mi
       requests:
         cpu: 100m
         memory: 50Mi
-    # Resource settings for the webhook service
-    resouces:
+    resourcesClient:
       limits:
         cpu: 500m
         memory: 128Mi
       requests:
         cpu: 100m
         memory: 50Mi
+    disabledNamespaces:
+      namespaces:
+        - test1
+        - test2
+        - test3
+      # Use only on OpenShift to ignore OpenShift namespaces
+      ignoreOpenShiftNamespaces: true
   registry:
     type: acr
     acr_name: falcon-sensor-repo
